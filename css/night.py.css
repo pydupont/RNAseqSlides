@@ -1,0 +1,38 @@
+.reveal {
+  font-family: "Open Sans", sans-serif;
+  font-size: 32px;
+  font-weight: normal;
+  color: #eee; 
+  text-align: left;
+}
+.reveal smaller {
+	display: inline-block;
+	font-size: 0.5em;
+	line-height: 1.0em;
+	vertical-align: top; 
+}
+
+.reveal smaller * {
+	vertical-align: top; 
+ }
+
+.reveal blockquote {
+	text-align: left;
+	border-left: 1px double;
+	padding-left: 15px;
+}
+
+.fragment.current-visible.visible:not(.current-fragment) {
+    display: none;
+    height:0px;
+    line-height: 0px;
+    font-size: 0px;
+}
+
+.biblio{
+	text-align: left;
+}
+
+.biblio p {
+	font-size: 0.8em;
+}

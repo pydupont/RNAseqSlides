@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/night.css">
+		<link rel="stylesheet" href="css/night.py.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				
+				<section>
+					<h1>RNA-seq</h1>
+					<h3>Pipelines and best practices</h3>
+					<p>
+						<small>05-05-17&nbsp;&bullet;&nbsp;Lab meeting</small>
+					</p>
+					<p>
+						<smaller><a href="http://pydupont.github.io/CV/", target="_blank">Pierre-Yves Dupont</a></smaller>
+					</p>
+				</section>
+
+				<section>
+					<p>
+						Conesa, A. et al. <b>A survey of best practices for RNA-seq data analysis.</b> <i>Genome Biology</i> 17, (2016)
+					</p>
+				</section>
+
+				<section>
+					<h3>Typical analysis</h3>
+					<ol>
+						<li class="fragment"> RNA extraction </li>
+						<li class="fragment"> Library preparation </li>
+						<li class="fragment"> Sequencing </li>
+						<li class="fragment"> Bioinformatics analysis </li>
+					</ol>
+					<blockquote class="fragment">
+						A crucial prerequisite for a successful RNA-seq study is that the data generated have the potential to answer the biological questions of interest. 
+					</blockquote>
+				</section>
+
+				<section>
+					<h3>Good practices</h3>
+					<ul>
+						<li>Use exogeneous reference transcripts (spike-ins): improve QC and helps library-size Normalisation</li>
+						<li class="fragment">Use random nucleotides adapters</li>
+						<li class="fragment">Randomize samples across:</li>
+						<ul class="fragment">
+							<li>library preparation batches</li>
+							<li>lanes or all samples pooled in all lanes</li>
+							<li>sequencing runs</li>
+						</ul>
+					</ul>
+
+				</section>
+
+				<section>
+					<h2>Experimental design</h2>
+					<ul class="fragment">
+						<li>Library type</li>
+						<li>Read length</li>
+						<li>Sequencing depth + number of replicates</li>
+						<li>rRNA removal</li>
+					</ul>
+					<aside class="notes">
+						<ul>
+							<li>Library type: Single/paired reads</li>
+							<li>Read length: Longer better for alternative splicing and close isoforms but usually more errors</li>
+							<li>Sequencing depth + number of replicates</li>
+						</ul>
+					</aside>
+				</section>
+
+				<section>
+					<h3>rRNA removal</h3>
+					<ul>
+						<li class="fragment">80-90% of rRNA, 1-5% of mRNA</li>
+						<li class="fragment">Poly(A) selection of mRNA: loose small RNA and requires minimal degradation of RNA (good RIN number). Sometimes impossible (depending on the sample). Eukaryote only</li>
+						<li class="fragment">rRNA depletion: based on sequence complementarity: doesn't always work</li>
+					</ul>
+					<aside class="notes">
+						RIN number: based on 28S to 18S rRNA ratio. Some organisms don't have typical RNA peaks and have always bad RIN. Over 8 usually concidered as good.</
+					</aside>
+				</section>
+
+				<section>
+					<h3>Sequencing depth</h3>
+					<ul>
+						<li>Sequencing depth depends on the system. Eg. single cell experiment requires less reads as there is less sample complexity</li>
+						<li class="fragment">Deep sequencing:</li>
+						<ul class="fragment">
+							<li>better quantification and identification</li>
+							<li>transcriptional noise problems</li>
+							<li>increased number of FP</li>
+						</ul>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Number of replicates</h3>
+					<img data-src="pics/DeepSeq0.png">
+					<aside class="notes">
+						22M reads : ~30X; (Human exome ~100Mb)
+					</aside>
+				</section>
+
+				<section>
+					<h3>Number of replicates</h3>
+					<img data-src="pics/DeepSeq.png">
+				</section>
+
+				<section>
+					<h3>Number of replicates</h3>
+					<img data-src="pics/ReplicatesTable.png">
+				</section>
+
+				<section>
+					<h2>Analysis</h2>
+					<ol>
+						<li>QC</li>
+						<li>Read mapping</li>
+						<li>Quantification</li>
+						<li>...</li>
+					</ol>
+				</section>
+
+				<section>
+					<h3>Raw reads QC</h3>
+					<ul>
+						<li>GC content. Check for double peaks: possible contamination</li>
+						<li class="fragment">Overrepresented k-mers: possible sequencing errors</li>
+						<li class="fragment">Presence of adapters</li>
+						<li class="fragment">FastQC, NGSQC
+						<li class="fragment">Trimming of low quality bases (SolexaQA, Fastx-Toolkit, Trimmomatic)</li>
+						<li class="fragment">Reproductibility</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Mapping</h3>
+					<img data-src="pics/Mapping.png" />
+				</section>
+
+				<section>
+					<h3>Quantification</h3>
+					<h4>Gene-level vs. Transcript-level quantification</h4>
+					<ul>
+						<li><b>Gene-level quantification</b></li>
+						<ul class="fragment current-visible">
+							<li>Count the number of reads per gene (or exons)</li>
+							<li>Reduce problem of multireads (less repeats)</li>
+							<li>No alternative splicing taken in account</li>
+						</ul> 
+						<li class="fragment"><b>Transcript-level quantification</b></li>
+						<ul class="fragment">
+							<li>Estimation of alternative splicing forms using read mapping patterns</li>
+							<li>PE reads only</li>
+							<li>Higher level of uncertainty for low expression levels</li>
+						</ul>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Quantification</h3>
+					<h4>RPKM Normalisation</h4>
+					<ul>
+						<li>Raw read counts can't be used to compare gene expression (different transcript length and total number of reads and sequencing biases)</li>
+						<li class="fragment">RPKM (reads per kilobase of exon model per million reads) ~ FPKM</li>
+						<li class="fragment">Gene length correction not useful if always comparing same gene expression between samples. Can lead to errors (eg. unknown alternative splicing)
+						<li class="fragment">Program estimating gene sizes based on data often return different sizes depending on sample</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Global pipeline</h3>
+					<img data-src="pics/Pipeline.png" />
+				</section>
+
+				<section>
+					<h3>To go further...</h3>
+					<div class="biblio">
+						<p>Conesa, A. et al. <b>A survey of best practices for RNA-seq data analysis.</b> <i>Genome Biology</i> 17, (2016).</p>
+						<p>Tarazona, S. et al. <b>Differential expression in RNA-seq: A matter of depth</b>. <i>Biotechfor</i> 21, 2213–2223 (2011).</p>
+						<p>Su, Z. et al. <b>A comprehensive assessment of RNA-seq accuracy, reproducibility and information content by the Sequencing Quality Control Consortium.</b> <i>Nat Biotechnol</i> 32, 903–914 (2014)</p>
+						<p>Oshlack, A. et al. <b>From RNA-seq reads to differential expression results.</b> <i>Genome Biol</i> 11, 220 (2010).</p>
+						<p>Hooper, J. <b>A survey of software for genome-wide discovery of differential splicing in RNA-Seq data.</b> <i>Hum Genom</i> 8, 1–6 (2013).</p>
+						<p>Gaur, P. and Chaturvedi, A. <b>Translational Bioinformatics and Its Application.</b> 223–248 (springer, 2017).</p>
+					<div>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				controls: false,
+				slideNumber: true,
+				history: true, 
+				transition: 'none',
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
